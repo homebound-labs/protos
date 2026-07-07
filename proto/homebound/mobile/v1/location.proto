@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package homebound.mobile.v1;
+
+import "google/protobuf/timestamp.proto";
+import "homebound/common/v1/common.proto";
+
+option go_package = "github.com/homebound-labs/protos/gen/go/homebound/mobile/v1;mobilev1";
+
+// LocationSource identifies which side produced a LocationPoint: the user's
+// phone (via the mobile app) or a claimed physical device (via aegis-pi
+// telemetry, projected into the mobile latest-location views).
+enum LocationSource {
+  LOCATION_SOURCE_UNSPECIFIED = 0;
+  LOCATION_SOURCE_PHONE = 1;
+  LOCATION_SOURCE_DEVICE = 2;
+}
+
+// PhoneLocationUpdate is the request body for POST /api/v1/mobile/location,
+// the mobile app's periodic phone location ping to backend-api. Mirrors the
+// existing JSON `mobile.LocationInput` shape in backend-api.
+message PhoneLocationUpdate {
+  homebound.common.v1.GeoPoint location = 1;
+  optional double altitude_meters = 2;
+  optional double speed_meters_per_second = 3;
+  optional double heading_degrees = 4;
+  optional homebound.common.v1.BatteryStatus battery = 5;
+  // Client-captured timestamp; if unset, the server records its own receipt
+  // time as captured_at.
+  optional google.protobuf.Timestamp captured_at = 6;
+}
+
+// LocationPoint is a persisted location fix, returned for both phone and
+// device sources. Mirrors the existing JSON `mobile.LocationPoint` shape.
+message LocationPoint {
+  string id = 1;
+  optional string user_id = 2;
+  optional string device_id = 3;
+  LocationSource source = 4;
+  homebound.common.v1.GeoPoint location = 5;
+  optional double altitude_meters = 6;
+  optional double speed_meters_per_second = 7;
+  optional double heading_degrees = 8;
+  optional homebound.common.v1.BatteryStatus battery = 9;
+  google.protobuf.Timestamp captured_at = 10;
+  optional google.protobuf.Timestamp received_at = 11;
+}
+
+// LatestLocationsResponse is the response body for
+// GET /api/v1/mobile/location/latest: the authenticated user's latest phone
+// location and their claimed device's latest telemetry location.
+message LatestLocationsResponse {
+  optional LocationPoint phone = 1;
+  optional LocationPoint device = 2;
+}
+
+// DeviceLatestLocationResponse is the response body for
+// GET /api/v1/mobile/devices/{deviceId}/location/latest.
+message DeviceLatestLocationResponse {
+  optional LocationPoint location = 1;
+}

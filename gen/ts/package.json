@@ -1,0 +1,11 @@
+{
+  "name": "@homebound-labs/protos",
+  "version": "0.1.0",
+  "description": "Generated TypeScript protobuf bindings for Homebound Labs shared schemas (github.com/homebound-labs/protos).",
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "main": "index.ts",
+  "peerDependencies": {
+    "@bufbuild/protobuf": "^1.10.0"
+  }
+}

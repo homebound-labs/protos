@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Generates Go and Python bindings for all protos in this repo.
+# Generates Go, TypeScript, and Python bindings for all protos in this repo.
 #
 # Requirements on PATH:
 #   - buf              (https://buf.build)
 #   - protoc-gen-go     (go install google.golang.org/protobuf/cmd/protoc-gen-go@latest)
 #   - protoc            (https://github.com/protocolbuffers/protobuf/releases) for Python codegen
+#   - node/npm          (for protoc-gen-es, installed into ./node_modules via `npm install`)
 #
 # Usage: ./scripts/generate.sh
 set -euo pipefail
@@ -12,7 +13,12 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-echo "==> Generating Go bindings (buf)"
+if [ ! -x node_modules/.bin/protoc-gen-es ]; then
+  echo "==> Installing TypeScript codegen tooling (npm install)"
+  npm install --no-audit --no-fund
+fi
+
+echo "==> Generating Go and TypeScript bindings (buf)"
 buf generate
 
 echo "==> Generating Python bindings (protoc)"

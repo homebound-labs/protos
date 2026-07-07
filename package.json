@@ -1,0 +1,10 @@
+{
+  "name": "protos-codegen-tools",
+  "private": true,
+  "description": "Dev-only tooling to generate gen/ts TypeScript bindings via buf. Not published.",
+  "devDependencies": {
+    "@bufbuild/buf": "^1.47.2",
+    "@bufbuild/protoc-gen-es": "^1.10.0",
+    "@bufbuild/protobuf": "^1.10.0"
+  }
+}
