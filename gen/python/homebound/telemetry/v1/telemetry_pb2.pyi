@@ -1,8 +1,11 @@
+import datetime
+
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from homebound.common.v1 import common_pb2 as _common_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -22,7 +25,7 @@ class TelemetryEvent(_message.Message):
     battery: _common_pb2.BatteryStatus
     source: _common_pb2.Source
     signal_strength: int
-    def __init__(self, event_id: _Optional[str] = ..., recorded_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., sequence: _Optional[int] = ..., location: _Optional[_Union[_common_pb2.GeoPoint, _Mapping]] = ..., battery: _Optional[_Union[_common_pb2.BatteryStatus, _Mapping]] = ..., source: _Optional[_Union[_common_pb2.Source, _Mapping]] = ..., signal_strength: _Optional[int] = ...) -> None: ...
+    def __init__(self, event_id: _Optional[str] = ..., recorded_at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., sequence: _Optional[int] = ..., location: _Optional[_Union[_common_pb2.GeoPoint, _Mapping]] = ..., battery: _Optional[_Union[_common_pb2.BatteryStatus, _Mapping]] = ..., source: _Optional[_Union[_common_pb2.Source, _Mapping]] = ..., signal_strength: _Optional[int] = ...) -> None: ...
 
 class TelemetryAck(_message.Message):
     __slots__ = ("accepted", "event_id", "server_received_at")
@@ -32,4 +35,4 @@ class TelemetryAck(_message.Message):
     accepted: bool
     event_id: str
     server_received_at: _timestamp_pb2.Timestamp
-    def __init__(self, accepted: bool = ..., event_id: _Optional[str] = ..., server_received_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+    def __init__(self, accepted: _Optional[bool] = ..., event_id: _Optional[str] = ..., server_received_at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
