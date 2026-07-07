@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package homebound.device.v1;
+
+option go_package = "github.com/homebound-labs/protos/gen/go/homebound/device/v1;devicev1";
+
+// DeviceAuthTokenRequest is the request body for POST /api/v1/device/auth/token,
+// exchanging a pre-provisioned per-device credential for a short-lived bearer
+// token. See knowledge/decisions/0006-production-device-contract.md.
+message DeviceAuthTokenRequest {
+  string device_id = 1;
+  string device_secret = 2;
+}
+
+// DeviceAuthTokenResponse carries the issued bearer token.
+message DeviceAuthTokenResponse {
+  string access_token = 1;
+  string token_type = 2;
+  int64 expires_in = 3;
+}

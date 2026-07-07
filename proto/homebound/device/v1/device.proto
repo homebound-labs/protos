@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package homebound.device.v1;
+
+option go_package = "github.com/homebound-labs/protos/gen/go/homebound/device/v1;devicev1";
+
+// HeartbeatResponse mirrors the current POST /api/v1/device/heartbeat JSON
+// response shape.
+message HeartbeatResponse {
+  string status = 1;
+  string device_id = 2;
+}
+
+// SosAck mirrors the current POST /api/v1/device/sos JSON response shape.
+message SosAck {
+  string status = 1;
+  string device_id = 2;
+}

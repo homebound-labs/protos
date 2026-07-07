@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-and-verify-generated:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+
+      - name: Install buf
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Install protoc-gen-go
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+
+      - name: Install protoc (for Python codegen)
+        run: |
+          curl -sSL -o /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v29.3/protoc-29.3-linux-x86_64.zip
+          sudo unzip -o /tmp/protoc.zip -d /usr/local
+
+      - name: buf lint
+        run: buf lint
+
+      - name: buf breaking (against main)
+        if: github.event_name == 'pull_request'
+        run: buf breaking --against 'https://github.com/homebound-labs/protos.git#branch=main'
+
+      - name: Regenerate and diff
+        run: |
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          ./scripts/generate.sh
+          git diff --exit-code -- gen/
+
+      - name: go build
+        run: go build ./...
+
+      - name: Python import check
+        run: |
+          python3 -m venv /tmp/venv
+          /tmp/venv/bin/pip install --quiet protobuf
+          PYTHONPATH=gen/python /tmp/venv/bin/python3 -c "from homebound.telemetry.v1 import telemetry_pb2; from homebound.device.v1 import auth_pb2"

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package homebound.telemetry.v1;
+
+import "google/protobuf/timestamp.proto";
+import "homebound/common/v1/common.proto";
+
+option go_package = "github.com/homebound-labs/protos/gen/go/homebound/telemetry/v1;telemetryv1";
+
+// TelemetryEvent is the single-event device telemetry contract described in
+// knowledge/decisions/0006-production-device-contract.md. It is the shared
+// wire format for POST /api/v1/device/telemetry between aegis-pi (producer)
+// and backend-api (consumer).
+message TelemetryEvent {
+  // Client-generated id used for offline-queue dedupe on replay.
+  string event_id = 1;
+  google.protobuf.Timestamp recorded_at = 2;
+  // Monotonic per-device sequence number, used alongside event_id for dedupe.
+  int64 sequence = 3;
+  optional homebound.common.v1.GeoPoint location = 4;
+  optional homebound.common.v1.BatteryStatus battery = 5;
+  homebound.common.v1.Source source = 6;
+  optional int32 signal_strength = 7;
+}
+
+// TelemetryAck is the response to a successfully ingested TelemetryEvent.
+message TelemetryAck {
+  bool accepted = 1;
+  string event_id = 2;
+  google.protobuf.Timestamp server_received_at = 3;
+}

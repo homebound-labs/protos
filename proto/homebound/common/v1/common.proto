@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package homebound.common.v1;
+
+option go_package = "github.com/homebound-labs/protos/gen/go/homebound/common/v1;commonv1";
+
+// GeoPoint is a shared location fix used across telemetry and device
+// messages. lat/lon follow WGS84 decimal degrees.
+message GeoPoint {
+  double latitude = 1;
+  double longitude = 2;
+  optional double accuracy_meters = 3;
+}
+
+// BatteryStatus is a shared battery/power report.
+message BatteryStatus {
+  optional int32 percent = 1;
+}
+
+// Source identifies the firmware/hardware that produced a message.
+message Source {
+  string firmware_version = 1;
+  string hardware_profile = 2;
+}
