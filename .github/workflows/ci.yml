@@ -44,8 +44,8 @@ jobs:
       - name: go build
         run: go build ./...
 
-      - name: Python import check
+      - name: Python install and import check
         run: |
           python3 -m venv /tmp/venv
-          /tmp/venv/bin/pip install --quiet protobuf
-          PYTHONPATH=gen/python /tmp/venv/bin/python3 -c "from homebound.telemetry.v1 import telemetry_pb2; from homebound.device.v1 import auth_pb2"
+          /tmp/venv/bin/pip install --quiet ./gen/python
+          /tmp/venv/bin/python3 -c "from homebound.telemetry.v1 import telemetry_pb2; from homebound.device.v1 import auth_pb2"

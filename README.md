@@ -69,8 +69,15 @@ evt = telemetry_pb2.TelemetryEvent(event_id="evt_01h...", sequence=1042)
 data = evt.SerializeToString()
 ```
 
-Consuming repos vendor or install `gen/python` on `PYTHONPATH` (a proper
-installable package/wheel is a follow-up; see "Known limitations" below).
+`gen/python` is a pip-installable package (`homebound-protos`,
+`gen/python/pyproject.toml`). Add it to a consuming repo's dependencies as a
+git dependency pinned to a ref, e.g. in `pyproject.toml`:
+
+```toml
+dependencies = [
+  "homebound-protos @ git+https://github.com/homebound-labs/protos.git@main#subdirectory=gen/python",
+]
+```
 
 ## Versioning and compatibility
 
@@ -83,10 +90,10 @@ installable package/wheel is a follow-up; see "Known limitations" below).
 
 ## Known limitations / follow-ups
 
-- Python bindings are plain generated modules under `gen/python`, not yet
-  packaged/published (e.g. to a private PyPI index). Consumers currently add
-  `gen/python` to `PYTHONPATH` or vendor it. Packaging as an installable
-  wheel is a reasonable follow-up if more than one Python consumer appears.
+- Python bindings are installed as a git dependency (`pip install
+  git+...#subdirectory=gen/python`), not yet published to a package index
+  (e.g. a private PyPI). Publishing to an index is a reasonable follow-up if
+  install-from-git friction becomes a problem.
 - No generated TypeScript bindings yet. `mobile-app`'s contracts with
   `backend-api` are user-facing CRUD JSON and are intentionally out of scope
   for this repo (see `api-contracts.md`). If a shared mobile-facing

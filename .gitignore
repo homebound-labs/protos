@@ -1,3 +1,5 @@
 .DS_Store
 *.pyc
 __pycache__/
+gen/python/build/
+gen/python/*.egg-info/

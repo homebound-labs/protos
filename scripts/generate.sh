@@ -16,8 +16,7 @@ echo "==> Generating Go bindings (buf)"
 buf generate
 
 echo "==> Generating Python bindings (protoc)"
-rm -rf gen/python
-mkdir -p gen/python
+find gen/python -mindepth 1 -maxdepth 1 ! -name 'pyproject.toml' -exec rm -rf {} +
 protoc \
   --proto_path=proto \
   --python_out=gen/python \
@@ -25,8 +24,10 @@ protoc \
   $(find proto -name '*.proto')
 
 # protoc's python_out does not emit package __init__.py files; add empty ones
-# so `import homebound.telemetry.v1.telemetry_pb2` works as a regular package.
-find gen/python -type d | while read -r dir; do
+# so `import homebound.telemetry.v1.telemetry_pb2` works as a regular package
+# and so gen/python is installable as the homebound-protos package (see
+# gen/python/pyproject.toml).
+find gen/python -type d ! -path 'gen/python' | while read -r dir; do
   touch "$dir/__init__.py"
 done
 
