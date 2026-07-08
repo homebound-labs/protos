@@ -30,7 +30,7 @@ contract inventory and classification.
 ```text
 proto/homebound/common/v1/     Shared value types (GeoPoint, BatteryStatus, Source)
 proto/homebound/telemetry/v1/  TelemetryEvent / TelemetryAck (POST /api/v1/device/telemetry)
-proto/homebound/device/v1/     Device auth token exchange, heartbeat/SOS responses
+proto/homebound/device/v1/     Device auth token exchange, heartbeat request/response, SOS response (unwired)
 proto/homebound/mobile/v1/     Phone location contract (POST /api/v1/mobile/location, GET .../location/latest, GET .../devices/{id}/location/latest)
 proto/homebound/events/v1/     Reserved for future event-bus messages (not wired yet)
 gen/go/                        Generated Go bindings (google.golang.org/protobuf)

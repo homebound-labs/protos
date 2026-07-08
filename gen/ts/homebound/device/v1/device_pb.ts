@@ -4,11 +4,66 @@
 // @ts-nocheck
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
-import { Message, proto3 } from "@bufbuild/protobuf";
+import { Message, proto3, Timestamp } from "@bufbuild/protobuf";
+import { Source } from "../../common/v1/common_pb";
 
 /**
- * HeartbeatResponse mirrors the current POST /api/v1/device/heartbeat JSON
- * response shape.
+ * HeartbeatRequest is the request body for POST /api/v1/device/heartbeat, a
+ * periodic device liveness ping. Device identity comes from the
+ * Authorization bearer token (see DeviceAuthTokenResponse), not this
+ * message, matching TelemetryEvent's convention.
+ *
+ * @generated from message homebound.device.v1.HeartbeatRequest
+ */
+export class HeartbeatRequest extends Message<HeartbeatRequest> {
+  /**
+   * @generated from field: string status = 1;
+   */
+  status = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp sent_at = 2;
+   */
+  sentAt?: Timestamp;
+
+  /**
+   * @generated from field: optional homebound.common.v1.Source source = 3;
+   */
+  source?: Source;
+
+  constructor(data?: PartialMessage<HeartbeatRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "homebound.device.v1.HeartbeatRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "status", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "sent_at", kind: "message", T: Timestamp },
+    { no: 3, name: "source", kind: "message", T: Source, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): HeartbeatRequest {
+    return new HeartbeatRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): HeartbeatRequest {
+    return new HeartbeatRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): HeartbeatRequest {
+    return new HeartbeatRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: HeartbeatRequest | PlainMessage<HeartbeatRequest> | undefined, b: HeartbeatRequest | PlainMessage<HeartbeatRequest> | undefined): boolean {
+    return proto3.util.equals(HeartbeatRequest, a, b);
+  }
+}
+
+/**
+ * HeartbeatResponse is the response to a successfully received
+ * HeartbeatRequest.
  *
  * @generated from message homebound.device.v1.HeartbeatResponse
  */
