@@ -7,8 +7,10 @@
 package devicev1
 
 import (
+	v1 "github.com/homebound-labs/protos/gen/go/homebound/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -21,8 +23,72 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// HeartbeatResponse mirrors the current POST /api/v1/device/heartbeat JSON
-// response shape.
+// HeartbeatRequest is the request body for POST /api/v1/device/heartbeat, a
+// periodic device liveness ping. Device identity comes from the
+// Authorization bearer token (see DeviceAuthTokenResponse), not this
+// message, matching TelemetryEvent's convention.
+type HeartbeatRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	SentAt        *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=sent_at,json=sentAt,proto3" json:"sent_at,omitempty"`
+	Source        *v1.Source             `protobuf:"bytes,3,opt,name=source,proto3,oneof" json:"source,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HeartbeatRequest) Reset() {
+	*x = HeartbeatRequest{}
+	mi := &file_homebound_device_v1_device_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HeartbeatRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HeartbeatRequest) ProtoMessage() {}
+
+func (x *HeartbeatRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_homebound_device_v1_device_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HeartbeatRequest.ProtoReflect.Descriptor instead.
+func (*HeartbeatRequest) Descriptor() ([]byte, []int) {
+	return file_homebound_device_v1_device_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *HeartbeatRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *HeartbeatRequest) GetSentAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SentAt
+	}
+	return nil
+}
+
+func (x *HeartbeatRequest) GetSource() *v1.Source {
+	if x != nil {
+		return x.Source
+	}
+	return nil
+}
+
+// HeartbeatResponse is the response to a successfully received
+// HeartbeatRequest.
 type HeartbeatResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
@@ -33,7 +99,7 @@ type HeartbeatResponse struct {
 
 func (x *HeartbeatResponse) Reset() {
 	*x = HeartbeatResponse{}
-	mi := &file_homebound_device_v1_device_proto_msgTypes[0]
+	mi := &file_homebound_device_v1_device_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +111,7 @@ func (x *HeartbeatResponse) String() string {
 func (*HeartbeatResponse) ProtoMessage() {}
 
 func (x *HeartbeatResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_homebound_device_v1_device_proto_msgTypes[0]
+	mi := &file_homebound_device_v1_device_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +124,7 @@ func (x *HeartbeatResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HeartbeatResponse.ProtoReflect.Descriptor instead.
 func (*HeartbeatResponse) Descriptor() ([]byte, []int) {
-	return file_homebound_device_v1_device_proto_rawDescGZIP(), []int{0}
+	return file_homebound_device_v1_device_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *HeartbeatResponse) GetStatus() string {
@@ -86,7 +152,7 @@ type SosAck struct {
 
 func (x *SosAck) Reset() {
 	*x = SosAck{}
-	mi := &file_homebound_device_v1_device_proto_msgTypes[1]
+	mi := &file_homebound_device_v1_device_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -98,7 +164,7 @@ func (x *SosAck) String() string {
 func (*SosAck) ProtoMessage() {}
 
 func (x *SosAck) ProtoReflect() protoreflect.Message {
-	mi := &file_homebound_device_v1_device_proto_msgTypes[1]
+	mi := &file_homebound_device_v1_device_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -111,7 +177,7 @@ func (x *SosAck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SosAck.ProtoReflect.Descriptor instead.
 func (*SosAck) Descriptor() ([]byte, []int) {
-	return file_homebound_device_v1_device_proto_rawDescGZIP(), []int{1}
+	return file_homebound_device_v1_device_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SosAck) GetStatus() string {
@@ -132,7 +198,12 @@ var File_homebound_device_v1_device_proto protoreflect.FileDescriptor
 
 const file_homebound_device_v1_device_proto_rawDesc = "" +
 	"\n" +
-	" homebound/device/v1/device.proto\x12\x13homebound.device.v1\"H\n" +
+	" homebound/device/v1/device.proto\x12\x13homebound.device.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a homebound/common/v1/common.proto\"\xa4\x01\n" +
+	"\x10HeartbeatRequest\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\x123\n" +
+	"\asent_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x06sentAt\x128\n" +
+	"\x06source\x18\x03 \x01(\v2\x1b.homebound.common.v1.SourceH\x00R\x06source\x88\x01\x01B\t\n" +
+	"\a_source\"H\n" +
 	"\x11HeartbeatResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x1b\n" +
 	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\"=\n" +
@@ -152,17 +223,22 @@ func file_homebound_device_v1_device_proto_rawDescGZIP() []byte {
 	return file_homebound_device_v1_device_proto_rawDescData
 }
 
-var file_homebound_device_v1_device_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_homebound_device_v1_device_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_homebound_device_v1_device_proto_goTypes = []any{
-	(*HeartbeatResponse)(nil), // 0: homebound.device.v1.HeartbeatResponse
-	(*SosAck)(nil),            // 1: homebound.device.v1.SosAck
+	(*HeartbeatRequest)(nil),      // 0: homebound.device.v1.HeartbeatRequest
+	(*HeartbeatResponse)(nil),     // 1: homebound.device.v1.HeartbeatResponse
+	(*SosAck)(nil),                // 2: homebound.device.v1.SosAck
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
+	(*v1.Source)(nil),             // 4: homebound.common.v1.Source
 }
 var file_homebound_device_v1_device_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	3, // 0: homebound.device.v1.HeartbeatRequest.sent_at:type_name -> google.protobuf.Timestamp
+	4, // 1: homebound.device.v1.HeartbeatRequest.source:type_name -> homebound.common.v1.Source
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_homebound_device_v1_device_proto_init() }
@@ -170,13 +246,14 @@ func file_homebound_device_v1_device_proto_init() {
 	if File_homebound_device_v1_device_proto != nil {
 		return
 	}
+	file_homebound_device_v1_device_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_homebound_device_v1_device_proto_rawDesc), len(file_homebound_device_v1_device_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

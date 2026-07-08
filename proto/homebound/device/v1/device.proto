@@ -2,10 +2,23 @@ syntax = "proto3";
 
 package homebound.device.v1;
 
+import "google/protobuf/timestamp.proto";
+import "homebound/common/v1/common.proto";
+
 option go_package = "github.com/homebound-labs/protos/gen/go/homebound/device/v1;devicev1";
 
-// HeartbeatResponse mirrors the current POST /api/v1/device/heartbeat JSON
-// response shape.
+// HeartbeatRequest is the request body for POST /api/v1/device/heartbeat, a
+// periodic device liveness ping. Device identity comes from the
+// Authorization bearer token (see DeviceAuthTokenResponse), not this
+// message, matching TelemetryEvent's convention.
+message HeartbeatRequest {
+  string status = 1;
+  google.protobuf.Timestamp sent_at = 2;
+  optional homebound.common.v1.Source source = 3;
+}
+
+// HeartbeatResponse is the response to a successfully received
+// HeartbeatRequest.
 message HeartbeatResponse {
   string status = 1;
   string device_id = 2;

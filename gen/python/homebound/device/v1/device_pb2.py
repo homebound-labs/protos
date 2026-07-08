@@ -22,9 +22,11 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
+from homebound.common.v1 import common_pb2 as homebound_dot_common_dot_v1_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n homebound/device/v1/device.proto\x12\x13homebound.device.v1\"6\n\x11HeartbeatResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x11\n\tdevice_id\x18\x02 \x01(\t\"+\n\x06SosAck\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x11\n\tdevice_id\x18\x02 \x01(\tBFZDgithub.com/homebound-labs/protos/gen/go/homebound/device/v1;devicev1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n homebound/device/v1/device.proto\x12\x13homebound.device.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a homebound/common/v1/common.proto\"\x8c\x01\n\x10HeartbeatRequest\x12\x0e\n\x06status\x18\x01 \x01(\t\x12+\n\x07sent_at\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x06source\x18\x03 \x01(\x0b\x32\x1b.homebound.common.v1.SourceH\x00\x88\x01\x01\x42\t\n\x07_source\"6\n\x11HeartbeatResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x11\n\tdevice_id\x18\x02 \x01(\t\"+\n\x06SosAck\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x11\n\tdevice_id\x18\x02 \x01(\tBFZDgithub.com/homebound-labs/protos/gen/go/homebound/device/v1;devicev1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,8 +34,10 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'homebound.device.v1.device_
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'ZDgithub.com/homebound-labs/protos/gen/go/homebound/device/v1;devicev1'
-  _globals['_HEARTBEATRESPONSE']._serialized_start=57
-  _globals['_HEARTBEATRESPONSE']._serialized_end=111
-  _globals['_SOSACK']._serialized_start=113
-  _globals['_SOSACK']._serialized_end=156
+  _globals['_HEARTBEATREQUEST']._serialized_start=125
+  _globals['_HEARTBEATREQUEST']._serialized_end=265
+  _globals['_HEARTBEATRESPONSE']._serialized_start=267
+  _globals['_HEARTBEATRESPONSE']._serialized_end=321
+  _globals['_SOSACK']._serialized_start=323
+  _globals['_SOSACK']._serialized_end=366
 # @@protoc_insertion_point(module_scope)
