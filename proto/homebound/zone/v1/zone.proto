@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package homebound.zone.v1;
+
+import "google/protobuf/timestamp.proto";
+import "homebound/common/v1/common.proto";
+
+option go_package = "github.com/homebound-labs/protos/gen/go/homebound/zone/v1;zonev1";
+
+// ZoneKind mirrors backend-api's ZoneRule.ZoneType ("safe"/"danger"): a safe
+// zone defines where a tracked location is expected to be, a danger zone
+// defines where it should never linger.
+enum ZoneKind {
+  ZONE_KIND_UNSPECIFIED = 0;
+  ZONE_KIND_SAFE = 1;
+  ZONE_KIND_DANGER = 2;
+}
+
+// ZoneShapeType mirrors backend-api's ZoneRule.ShapeType ("circle"/
+// "polygon").
+enum ZoneShapeType {
+  ZONE_SHAPE_TYPE_UNSPECIFIED = 0;
+  ZONE_SHAPE_TYPE_CIRCLE = 1;
+  ZONE_SHAPE_TYPE_POLYGON = 2;
+}
+
+// ZoneShape is a geofence boundary: either a circle (center + radius) or a
+// polygon (ordered vertices), matching backend-api's ZoneRule fields.
+message ZoneShape {
+  ZoneShapeType shape_type = 1;
+  optional homebound.common.v1.GeoPoint center = 2;
+  optional double radius_meters = 3;
+  repeated homebound.common.v1.GeoPoint vertices = 4;
+}
+
+// ZoneSuggestionSource identifies what evidence produced a ZoneSuggestion.
+enum ZoneSuggestionSource {
+  ZONE_SUGGESTION_SOURCE_UNSPECIFIED = 0;
+  // A location cluster where a tracked phone/device repeatedly dwells.
+  ZONE_SUGGESTION_SOURCE_FREQUENT_DWELL = 1;
+  // A corridor a tracked phone/device repeatedly traverses.
+  ZONE_SUGGESTION_SOURCE_REPEATED_ROUTE = 2;
+  // An operator or caregiver proposed the boundary directly, outside any
+  // automated model.
+  ZONE_SUGGESTION_SOURCE_OPERATOR_REVIEW = 3;
+}
+
+// ZoneSuggestionStatus tracks a suggestion through owner/caregiver review.
+// Per SWD-001 scope, suggestions never self-transition to ACCEPTED: only an
+// explicit reviewer action creates a live ZoneRule from an accepted
+// suggestion (out of scope for this contract).
+enum ZoneSuggestionStatus {
+  ZONE_SUGGESTION_STATUS_UNSPECIFIED = 0;
+  ZONE_SUGGESTION_STATUS_PENDING_REVIEW = 1;
+  ZONE_SUGGESTION_STATUS_ACCEPTED = 2;
+  ZONE_SUGGESTION_STATUS_REJECTED = 3;
+  ZONE_SUGGESTION_STATUS_EXPIRED = 4;
+}
+
+// ZoneSuggestion is a backend-generated candidate safe or danger zone,
+// awaiting owner/caregiver review before it becomes a live ZoneRule.
+// Suggestions never auto-activate.
+message ZoneSuggestion {
+  string id = 1;
+  string user_id = 2;
+  optional string device_id = 3;
+  ZoneKind suggested_kind = 4;
+  ZoneShape shape = 5;
+  optional string suggested_name = 6;
+  ZoneSuggestionSource source = 7;
+  // Model confidence, 0.0-1.0, that this suggestion reflects a genuine
+  // pattern worth a reviewer's attention. Distinct from AlertConfidence,
+  // which scores a specific fired alert rather than a candidate zone.
+  double confidence = 8;
+  ZoneSuggestionStatus status = 9;
+  // Coarse evidence backing this suggestion. Per security/privacy guidance,
+  // suggestions carry aggregated evidence only, never raw location history.
+  optional ZoneQualitySummary quality_summary = 10;
+  google.protobuf.Timestamp created_at = 11;
+  optional google.protobuf.Timestamp reviewed_at = 12;
+  optional string reviewed_by_user_id = 13;
+  // Free-text reason captured on rejection, for the rejection-reason metric
+  // the data/metrics lens asked for.
+  optional string rejection_reason = 14;
+}
+
+// ZoneQualitySummary is a coarse, aggregated evidence summary for either a
+// live zone (zone_id set) or a pending suggestion (suggestion_id set). It
+// intentionally excludes raw location points: only counts, timestamps, and
+// derived proxies, per security/privacy guidance to minimize stored
+// behavioral evidence.
+message ZoneQualitySummary {
+  string id = 1;
+  string user_id = 2;
+  optional string device_id = 3;
+  optional string zone_id = 4;
+  optional string suggestion_id = 5;
+  int32 observation_count = 6;
+  int32 distinct_day_count = 7;
+  google.protobuf.Timestamp first_observed_at = 8;
+  google.protobuf.Timestamp last_observed_at = 9;
+  optional double median_dwell_seconds = 10;
+  // Coarse signal-quality proxy, 0.0-1.0, derived from factors like GPS
+  // accuracy and distinct-day spread. Not a confidence score for any
+  // specific suggestion or alert decision.
+  double signal_quality = 11;
+}
