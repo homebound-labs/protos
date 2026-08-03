@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package homebound.alert.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/homebound-labs/protos/gen/go/homebound/alert/v1;alertv1";
+
+// AlertSignalType identifies one input that contributed to an
+// AlertConfidence evaluation. The first two values mirror backend-api's
+// existing mobile_alerts.type values (DistanceThresholdAlertType,
+// DangerZoneDwellAlertType); the others are additional evidence signals a
+// confidence evaluation may weigh alongside the triggering alert type.
+enum AlertSignalType {
+  ALERT_SIGNAL_TYPE_UNSPECIFIED = 0;
+  ALERT_SIGNAL_TYPE_DISTANCE_THRESHOLD = 1;
+  ALERT_SIGNAL_TYPE_DANGER_ZONE_DWELL = 2;
+  ALERT_SIGNAL_TYPE_STALE_LOCATION = 3;
+  ALERT_SIGNAL_TYPE_LOW_GPS_ACCURACY = 4;
+}
+
+// AlertSignal is one weighted input into an AlertConfidence score, so an
+// operator or owner can see which evidence contributed to a fired alert.
+message AlertSignal {
+  AlertSignalType signal_type = 1;
+  // This signal's contribution weight, 0.0-1.0.
+  double weight = 2;
+  optional string detail = 3;
+}
+
+// AlertConfidenceLevel is a coarse bucketing of AlertConfidence.score for
+// display and threshold decisions.
+enum AlertConfidenceLevel {
+  ALERT_CONFIDENCE_LEVEL_UNSPECIFIED = 0;
+  ALERT_CONFIDENCE_LEVEL_LOW = 1;
+  ALERT_CONFIDENCE_LEVEL_MEDIUM = 2;
+  ALERT_CONFIDENCE_LEVEL_HIGH = 3;
+}
+
+// AlertConfidence records why a backend-generated alert (mobile_alerts row)
+// fired, which signals contributed, and the evaluation's operational
+// characteristics: latency and duplicate suppression, per the reliability
+// lens's day-one observability requirement.
+message AlertConfidence {
+  string id = 1;
+  // Correlates to backend-api's mobile_alerts.id.
+  string alert_id = 2;
+  string user_id = 3;
+  optional string device_id = 4;
+  // Overall confidence, 0.0-1.0, that this alert reflects a genuine
+  // safety-relevant condition rather than noise (e.g. stale or low-accuracy
+  // location).
+  double score = 5;
+  AlertConfidenceLevel level = 6;
+  repeated AlertSignal contributing_signals = 7;
+  // True if this evaluation suppressed a duplicate of an already-fired
+  // alert rather than producing a new notification.
+  bool duplicate_suppressed = 8;
+  // Set when duplicate_suppressed is true: the earlier alert this
+  // evaluation was deduplicated against.
+  optional string suppressed_alert_id = 9;
+  // Latency from the triggering device/mobile event to this confidence
+  // decision.
+  optional int64 evaluation_latency_ms = 10;
+  google.protobuf.Timestamp evaluated_at = 11;
+}
+
+// NotificationChannel mirrors backend-api's internal/notify transports
+// (decision 0012-notification-recipients.md): push (Expo), email (SMTP),
+// and SMS (currently a no-op provider).
+enum NotificationChannel {
+  NOTIFICATION_CHANNEL_UNSPECIFIED = 0;
+  NOTIFICATION_CHANNEL_PUSH = 1;
+  NOTIFICATION_CHANNEL_EMAIL = 2;
+  NOTIFICATION_CHANNEL_SMS = 3;
+}
+
+// NotificationDeliveryStatus is the outcome of one delivery attempt.
+enum NotificationDeliveryStatus {
+  NOTIFICATION_DELIVERY_STATUS_UNSPECIFIED = 0;
+  NOTIFICATION_DELIVERY_STATUS_SENT = 1;
+  NOTIFICATION_DELIVERY_STATUS_DELIVERED = 2;
+  NOTIFICATION_DELIVERY_STATUS_FAILED = 3;
+  // The channel had no usable provider or destination (e.g. SMS's current
+  // no-op provider, or a recipient with no verified channel), so no
+  // delivery attempt was made.
+  NOTIFICATION_DELIVERY_STATUS_SKIPPED = 4;
+}
+
+// NotificationOutcome records one delivery attempt for an alert
+// notification: which recipient, which channel, whether it was delivered,
+// and escalation status, per the reliability lens's requirement to trace
+// notification delivery and escalation outcomes.
+message NotificationOutcome {
+  string id = 1;
+  // Correlates to backend-api's mobile_alerts.id.
+  string alert_id = 2;
+  // The owner or an accepted notification_recipients row (decision 0012).
+  string recipient_user_id = 3;
+  NotificationChannel channel = 4;
+  NotificationDeliveryStatus status = 5;
+  // Provider identifier, e.g. "expo", "smtp", "noop".
+  optional string provider = 6;
+  optional string failure_reason = 7;
+  // Latency from alert creation to this delivery attempt.
+  optional int64 delivery_latency_ms = 8;
+  bool escalated = 9;
+  optional string escalation_reason = 10;
+  google.protobuf.Timestamp attempted_at = 11;
+}
