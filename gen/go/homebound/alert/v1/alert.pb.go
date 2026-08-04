@@ -250,6 +250,60 @@ func (NotificationDeliveryStatus) EnumDescriptor() ([]byte, []int) {
 	return file_homebound_alert_v1_alert_proto_rawDescGZIP(), []int{3}
 }
 
+// NotificationRecipientType distinguishes an alert's own owner from an
+// invited notification_recipients row (decision 0012), so a single alert's
+// multiple delivery-outcome rows (owner push, plus per-recipient
+// push/email/SMS) can be told apart. Added by SWD-028 after confirming
+// notifyAlertCreated/notifyRecipientsOfAlert fan out to both.
+type NotificationRecipientType int32
+
+const (
+	NotificationRecipientType_NOTIFICATION_RECIPIENT_TYPE_UNSPECIFIED            NotificationRecipientType = 0
+	NotificationRecipientType_NOTIFICATION_RECIPIENT_TYPE_OWNER                  NotificationRecipientType = 1
+	NotificationRecipientType_NOTIFICATION_RECIPIENT_TYPE_NOTIFICATION_RECIPIENT NotificationRecipientType = 2
+)
+
+// Enum value maps for NotificationRecipientType.
+var (
+	NotificationRecipientType_name = map[int32]string{
+		0: "NOTIFICATION_RECIPIENT_TYPE_UNSPECIFIED",
+		1: "NOTIFICATION_RECIPIENT_TYPE_OWNER",
+		2: "NOTIFICATION_RECIPIENT_TYPE_NOTIFICATION_RECIPIENT",
+	}
+	NotificationRecipientType_value = map[string]int32{
+		"NOTIFICATION_RECIPIENT_TYPE_UNSPECIFIED":            0,
+		"NOTIFICATION_RECIPIENT_TYPE_OWNER":                  1,
+		"NOTIFICATION_RECIPIENT_TYPE_NOTIFICATION_RECIPIENT": 2,
+	}
+)
+
+func (x NotificationRecipientType) Enum() *NotificationRecipientType {
+	p := new(NotificationRecipientType)
+	*p = x
+	return p
+}
+
+func (x NotificationRecipientType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NotificationRecipientType) Descriptor() protoreflect.EnumDescriptor {
+	return file_homebound_alert_v1_alert_proto_enumTypes[4].Descriptor()
+}
+
+func (NotificationRecipientType) Type() protoreflect.EnumType {
+	return &file_homebound_alert_v1_alert_proto_enumTypes[4]
+}
+
+func (x NotificationRecipientType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NotificationRecipientType.Descriptor instead.
+func (NotificationRecipientType) EnumDescriptor() ([]byte, []int) {
+	return file_homebound_alert_v1_alert_proto_rawDescGZIP(), []int{4}
+}
+
 // AlertSignal is one weighted input into an AlertConfidence score, so an
 // operator or owner can see which evidence contributed to a fired alert.
 type AlertSignal struct {
@@ -472,8 +526,13 @@ type NotificationOutcome struct {
 	Escalated         bool                   `protobuf:"varint,9,opt,name=escalated,proto3" json:"escalated,omitempty"`
 	EscalationReason  *string                `protobuf:"bytes,10,opt,name=escalation_reason,json=escalationReason,proto3,oneof" json:"escalation_reason,omitempty"`
 	AttemptedAt       *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=attempted_at,json=attemptedAt,proto3" json:"attempted_at,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Whether this delivery went to the alert's owner or an invited recipient.
+	RecipientType NotificationRecipientType `protobuf:"varint,12,opt,name=recipient_type,json=recipientType,proto3,enum=homebound.alert.v1.NotificationRecipientType" json:"recipient_type,omitempty"`
+	// Set when recipient_type is NOTIFICATION_RECIPIENT_TYPE_NOTIFICATION_RECIPIENT:
+	// the specific notification_recipients row this delivery was to.
+	NotificationRecipientId *string `protobuf:"bytes,13,opt,name=notification_recipient_id,json=notificationRecipientId,proto3,oneof" json:"notification_recipient_id,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *NotificationOutcome) Reset() {
@@ -583,6 +642,20 @@ func (x *NotificationOutcome) GetAttemptedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *NotificationOutcome) GetRecipientType() NotificationRecipientType {
+	if x != nil {
+		return x.RecipientType
+	}
+	return NotificationRecipientType_NOTIFICATION_RECIPIENT_TYPE_UNSPECIFIED
+}
+
+func (x *NotificationOutcome) GetNotificationRecipientId() string {
+	if x != nil && x.NotificationRecipientId != nil {
+		return *x.NotificationRecipientId
+	}
+	return ""
+}
+
 var File_homebound_alert_v1_alert_proto protoreflect.FileDescriptor
 
 const file_homebound_alert_v1_alert_proto_rawDesc = "" +
@@ -610,7 +683,7 @@ const file_homebound_alert_v1_alert_proto_rawDesc = "" +
 	"\n" +
 	"_device_idB\x16\n" +
 	"\x14_suppressed_alert_idB\x18\n" +
-	"\x16_evaluation_latency_ms\"\xd6\x04\n" +
+	"\x16_evaluation_latency_ms\"\x8b\x06\n" +
 	"\x13NotificationOutcome\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\balert_id\x18\x02 \x01(\tR\aalertId\x12*\n" +
@@ -623,11 +696,14 @@ const file_homebound_alert_v1_alert_proto_rawDesc = "" +
 	"\tescalated\x18\t \x01(\bR\tescalated\x120\n" +
 	"\x11escalation_reason\x18\n" +
 	" \x01(\tH\x03R\x10escalationReason\x88\x01\x01\x12=\n" +
-	"\fattempted_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\vattemptedAtB\v\n" +
+	"\fattempted_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\vattemptedAt\x12T\n" +
+	"\x0erecipient_type\x18\f \x01(\x0e2-.homebound.alert.v1.NotificationRecipientTypeR\rrecipientType\x12?\n" +
+	"\x19notification_recipient_id\x18\r \x01(\tH\x04R\x17notificationRecipientId\x88\x01\x01B\v\n" +
 	"\t_providerB\x11\n" +
 	"\x0f_failure_reasonB\x16\n" +
 	"\x14_delivery_latency_msB\x14\n" +
-	"\x12_escalation_reason*\xd5\x01\n" +
+	"\x12_escalation_reasonB\x1c\n" +
+	"\x1a_notification_recipient_id*\xd5\x01\n" +
 	"\x0fAlertSignalType\x12!\n" +
 	"\x1dALERT_SIGNAL_TYPE_UNSPECIFIED\x10\x00\x12(\n" +
 	"$ALERT_SIGNAL_TYPE_DISTANCE_THRESHOLD\x10\x01\x12'\n" +
@@ -649,7 +725,11 @@ const file_homebound_alert_v1_alert_proto_rawDesc = "" +
 	"!NOTIFICATION_DELIVERY_STATUS_SENT\x10\x01\x12*\n" +
 	"&NOTIFICATION_DELIVERY_STATUS_DELIVERED\x10\x02\x12'\n" +
 	"#NOTIFICATION_DELIVERY_STATUS_FAILED\x10\x03\x12(\n" +
-	"$NOTIFICATION_DELIVERY_STATUS_SKIPPED\x10\x04BDZBgithub.com/homebound-labs/protos/gen/go/homebound/alert/v1;alertv1b\x06proto3"
+	"$NOTIFICATION_DELIVERY_STATUS_SKIPPED\x10\x04*\xa7\x01\n" +
+	"\x19NotificationRecipientType\x12+\n" +
+	"'NOTIFICATION_RECIPIENT_TYPE_UNSPECIFIED\x10\x00\x12%\n" +
+	"!NOTIFICATION_RECIPIENT_TYPE_OWNER\x10\x01\x126\n" +
+	"2NOTIFICATION_RECIPIENT_TYPE_NOTIFICATION_RECIPIENT\x10\x02BDZBgithub.com/homebound-labs/protos/gen/go/homebound/alert/v1;alertv1b\x06proto3"
 
 var (
 	file_homebound_alert_v1_alert_proto_rawDescOnce sync.Once
@@ -663,31 +743,33 @@ func file_homebound_alert_v1_alert_proto_rawDescGZIP() []byte {
 	return file_homebound_alert_v1_alert_proto_rawDescData
 }
 
-var file_homebound_alert_v1_alert_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_homebound_alert_v1_alert_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
 var file_homebound_alert_v1_alert_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_homebound_alert_v1_alert_proto_goTypes = []any{
 	(AlertSignalType)(0),            // 0: homebound.alert.v1.AlertSignalType
 	(AlertConfidenceLevel)(0),       // 1: homebound.alert.v1.AlertConfidenceLevel
 	(NotificationChannel)(0),        // 2: homebound.alert.v1.NotificationChannel
 	(NotificationDeliveryStatus)(0), // 3: homebound.alert.v1.NotificationDeliveryStatus
-	(*AlertSignal)(nil),             // 4: homebound.alert.v1.AlertSignal
-	(*AlertConfidence)(nil),         // 5: homebound.alert.v1.AlertConfidence
-	(*NotificationOutcome)(nil),     // 6: homebound.alert.v1.NotificationOutcome
-	(*timestamppb.Timestamp)(nil),   // 7: google.protobuf.Timestamp
+	(NotificationRecipientType)(0),  // 4: homebound.alert.v1.NotificationRecipientType
+	(*AlertSignal)(nil),             // 5: homebound.alert.v1.AlertSignal
+	(*AlertConfidence)(nil),         // 6: homebound.alert.v1.AlertConfidence
+	(*NotificationOutcome)(nil),     // 7: homebound.alert.v1.NotificationOutcome
+	(*timestamppb.Timestamp)(nil),   // 8: google.protobuf.Timestamp
 }
 var file_homebound_alert_v1_alert_proto_depIdxs = []int32{
 	0, // 0: homebound.alert.v1.AlertSignal.signal_type:type_name -> homebound.alert.v1.AlertSignalType
 	1, // 1: homebound.alert.v1.AlertConfidence.level:type_name -> homebound.alert.v1.AlertConfidenceLevel
-	4, // 2: homebound.alert.v1.AlertConfidence.contributing_signals:type_name -> homebound.alert.v1.AlertSignal
-	7, // 3: homebound.alert.v1.AlertConfidence.evaluated_at:type_name -> google.protobuf.Timestamp
+	5, // 2: homebound.alert.v1.AlertConfidence.contributing_signals:type_name -> homebound.alert.v1.AlertSignal
+	8, // 3: homebound.alert.v1.AlertConfidence.evaluated_at:type_name -> google.protobuf.Timestamp
 	2, // 4: homebound.alert.v1.NotificationOutcome.channel:type_name -> homebound.alert.v1.NotificationChannel
 	3, // 5: homebound.alert.v1.NotificationOutcome.status:type_name -> homebound.alert.v1.NotificationDeliveryStatus
-	7, // 6: homebound.alert.v1.NotificationOutcome.attempted_at:type_name -> google.protobuf.Timestamp
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	8, // 6: homebound.alert.v1.NotificationOutcome.attempted_at:type_name -> google.protobuf.Timestamp
+	4, // 7: homebound.alert.v1.NotificationOutcome.recipient_type:type_name -> homebound.alert.v1.NotificationRecipientType
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_homebound_alert_v1_alert_proto_init() }
@@ -703,7 +785,7 @@ func file_homebound_alert_v1_alert_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_homebound_alert_v1_alert_proto_rawDesc), len(file_homebound_alert_v1_alert_proto_rawDesc)),
-			NumEnums:      4,
+			NumEnums:      5,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,

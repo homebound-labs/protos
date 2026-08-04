@@ -87,6 +87,17 @@ enum NotificationDeliveryStatus {
   NOTIFICATION_DELIVERY_STATUS_SKIPPED = 4;
 }
 
+// NotificationRecipientType distinguishes an alert's own owner from an
+// invited notification_recipients row (decision 0012), so a single alert's
+// multiple delivery-outcome rows (owner push, plus per-recipient
+// push/email/SMS) can be told apart. Added by SWD-028 after confirming
+// notifyAlertCreated/notifyRecipientsOfAlert fan out to both.
+enum NotificationRecipientType {
+  NOTIFICATION_RECIPIENT_TYPE_UNSPECIFIED = 0;
+  NOTIFICATION_RECIPIENT_TYPE_OWNER = 1;
+  NOTIFICATION_RECIPIENT_TYPE_NOTIFICATION_RECIPIENT = 2;
+}
+
 // NotificationOutcome records one delivery attempt for an alert
 // notification: which recipient, which channel, whether it was delivered,
 // and escalation status, per the reliability lens's requirement to trace
@@ -107,4 +118,9 @@ message NotificationOutcome {
   bool escalated = 9;
   optional string escalation_reason = 10;
   google.protobuf.Timestamp attempted_at = 11;
+  // Whether this delivery went to the alert's owner or an invited recipient.
+  NotificationRecipientType recipient_type = 12;
+  // Set when recipient_type is NOTIFICATION_RECIPIENT_TYPE_NOTIFICATION_RECIPIENT:
+  // the specific notification_recipients row this delivery was to.
+  optional string notification_recipient_id = 13;
 }

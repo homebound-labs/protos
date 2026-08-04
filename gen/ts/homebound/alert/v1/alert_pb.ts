@@ -166,6 +166,38 @@ proto3.util.setEnumType(NotificationDeliveryStatus, "homebound.alert.v1.Notifica
 ]);
 
 /**
+ * NotificationRecipientType distinguishes an alert's own owner from an
+ * invited notification_recipients row (decision 0012), so a single alert's
+ * multiple delivery-outcome rows (owner push, plus per-recipient
+ * push/email/SMS) can be told apart. Added by SWD-028 after confirming
+ * notifyAlertCreated/notifyRecipientsOfAlert fan out to both.
+ *
+ * @generated from enum homebound.alert.v1.NotificationRecipientType
+ */
+export enum NotificationRecipientType {
+  /**
+   * @generated from enum value: NOTIFICATION_RECIPIENT_TYPE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: NOTIFICATION_RECIPIENT_TYPE_OWNER = 1;
+   */
+  OWNER = 1,
+
+  /**
+   * @generated from enum value: NOTIFICATION_RECIPIENT_TYPE_NOTIFICATION_RECIPIENT = 2;
+   */
+  NOTIFICATION_RECIPIENT = 2,
+}
+// Retrieve enum metadata with: proto3.getEnumType(NotificationRecipientType)
+proto3.util.setEnumType(NotificationRecipientType, "homebound.alert.v1.NotificationRecipientType", [
+  { no: 0, name: "NOTIFICATION_RECIPIENT_TYPE_UNSPECIFIED" },
+  { no: 1, name: "NOTIFICATION_RECIPIENT_TYPE_OWNER" },
+  { no: 2, name: "NOTIFICATION_RECIPIENT_TYPE_NOTIFICATION_RECIPIENT" },
+]);
+
+/**
  * AlertSignal is one weighted input into an AlertConfidence score, so an
  * operator or owner can see which evidence contributed to a fired alert.
  *
@@ -408,6 +440,21 @@ export class NotificationOutcome extends Message<NotificationOutcome> {
    */
   attemptedAt?: Timestamp;
 
+  /**
+   * Whether this delivery went to the alert's owner or an invited recipient.
+   *
+   * @generated from field: homebound.alert.v1.NotificationRecipientType recipient_type = 12;
+   */
+  recipientType = NotificationRecipientType.UNSPECIFIED;
+
+  /**
+   * Set when recipient_type is NOTIFICATION_RECIPIENT_TYPE_NOTIFICATION_RECIPIENT:
+   * the specific notification_recipients row this delivery was to.
+   *
+   * @generated from field: optional string notification_recipient_id = 13;
+   */
+  notificationRecipientId?: string;
+
   constructor(data?: PartialMessage<NotificationOutcome>) {
     super();
     proto3.util.initPartial(data, this);
@@ -427,6 +474,8 @@ export class NotificationOutcome extends Message<NotificationOutcome> {
     { no: 9, name: "escalated", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
     { no: 10, name: "escalation_reason", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 11, name: "attempted_at", kind: "message", T: Timestamp },
+    { no: 12, name: "recipient_type", kind: "enum", T: proto3.getEnumType(NotificationRecipientType) },
+    { no: 13, name: "notification_recipient_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): NotificationOutcome {
