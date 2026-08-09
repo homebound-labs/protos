@@ -1,12 +1,9 @@
-import datetime
-
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -101,7 +98,7 @@ class AlertConfidence(_message.Message):
     suppressed_alert_id: str
     evaluation_latency_ms: int
     evaluated_at: _timestamp_pb2.Timestamp
-    def __init__(self, id: _Optional[str] = ..., alert_id: _Optional[str] = ..., user_id: _Optional[str] = ..., device_id: _Optional[str] = ..., score: _Optional[float] = ..., level: _Optional[_Union[AlertConfidenceLevel, str]] = ..., contributing_signals: _Optional[_Iterable[_Union[AlertSignal, _Mapping]]] = ..., duplicate_suppressed: _Optional[bool] = ..., suppressed_alert_id: _Optional[str] = ..., evaluation_latency_ms: _Optional[int] = ..., evaluated_at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., alert_id: _Optional[str] = ..., user_id: _Optional[str] = ..., device_id: _Optional[str] = ..., score: _Optional[float] = ..., level: _Optional[_Union[AlertConfidenceLevel, str]] = ..., contributing_signals: _Optional[_Iterable[_Union[AlertSignal, _Mapping]]] = ..., duplicate_suppressed: bool = ..., suppressed_alert_id: _Optional[str] = ..., evaluation_latency_ms: _Optional[int] = ..., evaluated_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
 
 class NotificationOutcome(_message.Message):
     __slots__ = ("id", "alert_id", "recipient_user_id", "channel", "status", "provider", "failure_reason", "delivery_latency_ms", "escalated", "escalation_reason", "attempted_at", "recipient_type", "notification_recipient_id")
@@ -131,4 +128,4 @@ class NotificationOutcome(_message.Message):
     attempted_at: _timestamp_pb2.Timestamp
     recipient_type: NotificationRecipientType
     notification_recipient_id: str
-    def __init__(self, id: _Optional[str] = ..., alert_id: _Optional[str] = ..., recipient_user_id: _Optional[str] = ..., channel: _Optional[_Union[NotificationChannel, str]] = ..., status: _Optional[_Union[NotificationDeliveryStatus, str]] = ..., provider: _Optional[str] = ..., failure_reason: _Optional[str] = ..., delivery_latency_ms: _Optional[int] = ..., escalated: _Optional[bool] = ..., escalation_reason: _Optional[str] = ..., attempted_at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., recipient_type: _Optional[_Union[NotificationRecipientType, str]] = ..., notification_recipient_id: _Optional[str] = ...) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., alert_id: _Optional[str] = ..., recipient_user_id: _Optional[str] = ..., channel: _Optional[_Union[NotificationChannel, str]] = ..., status: _Optional[_Union[NotificationDeliveryStatus, str]] = ..., provider: _Optional[str] = ..., failure_reason: _Optional[str] = ..., delivery_latency_ms: _Optional[int] = ..., escalated: bool = ..., escalation_reason: _Optional[str] = ..., attempted_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., recipient_type: _Optional[_Union[NotificationRecipientType, str]] = ..., notification_recipient_id: _Optional[str] = ...) -> None: ...
