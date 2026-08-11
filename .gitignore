@@ -5,3 +5,7 @@ gen/python/build/
 gen/python/*.egg-info/
 node_modules/
 package-lock.json
+gen/rust/target/
+# gen/rust is a library crate consumed as a git dependency, so its lockfile
+# is not committed (consumers resolve their own dependency versions).
+gen/rust/Cargo.lock
