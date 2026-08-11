@@ -9,3 +9,17 @@ plugins:
     opt:
       - target=ts
       - import_extension=none
+  # Rust bindings (prost). google.protobuf.* types deliberately map to the
+  # prost-types crate rather than being compiled here, so every consumer
+  # shares one Timestamp type.
+  - local: protoc-gen-prost
+    out: gen/rust/src
+  # Emits gen/rust/src/mod.rs, the module tree that gen/rust/src/lib.rs
+  # includes. `strategy: all` is required: it needs every file at once to
+  # build the tree. `no_features` keeps per-package cargo features out, so
+  # gen/rust/Cargo.toml stays hand-maintained.
+  - local: protoc-gen-prost-crate
+    out: gen/rust/src
+    strategy: all
+    opt:
+      - no_features
