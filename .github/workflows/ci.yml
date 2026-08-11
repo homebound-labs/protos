@@ -75,10 +75,13 @@ jobs:
           /tmp/venv/bin/python3 - <<'PY'
           import importlib, pathlib, sys
 
+          # Scoped to the package root on purpose: `pip install` leaves
+          # setuptools artifacts in gen/python/build/, and globbing the whole
+          # of gen/python would try to import those copies as `build.lib.*`.
           root = pathlib.Path("gen/python")
           modules = sorted(
               str(p.relative_to(root).with_suffix("")).replace("/", ".")
-              for p in root.rglob("*_pb2.py")
+              for p in (root / "homebound").rglob("*_pb2.py")
           )
           if not modules:
               sys.exit("no generated Python modules found")
