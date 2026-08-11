@@ -2,9 +2,12 @@
   "name": "protos-codegen-tools",
   "private": true,
   "description": "Dev-only tooling to generate gen/ts TypeScript bindings via buf. Not published.",
+  "comments": {
+    "pinning": "Exact versions, no carets: package-lock.json is gitignored, so a caret range would let npm resolve a newer protoc-gen-es and silently change gen/ts, failing the generated-code-is-current check on an unrelated PR. Bump deliberately, committing the regenerated gen/ts in the same PR."
+  },
   "devDependencies": {
-    "@bufbuild/buf": "^1.47.2",
-    "@bufbuild/protoc-gen-es": "^1.10.0",
-    "@bufbuild/protobuf": "^1.10.0"
+    "@bufbuild/buf": "1.47.2",
+    "@bufbuild/protoc-gen-es": "1.10.1",
+    "@bufbuild/protobuf": "1.10.1"
   }
 }

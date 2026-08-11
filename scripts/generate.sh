@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # Generates Go, TypeScript, and Python bindings for all protos in this repo.
 #
-# Requirements on PATH:
-#   - buf              (https://buf.build)
-#   - protoc-gen-go     (go install google.golang.org/protobuf/cmd/protoc-gen-go@latest)
-#   - protoc            (https://github.com/protocolbuffers/protobuf/releases) for Python codegen
-#   - node/npm          (for protoc-gen-es, installed into ./node_modules via `npm install`)
+# Requirements on PATH. Use the same versions CI pins (see the `env:` block
+# in .github/workflows/ci.yml) -- generated output is version-sensitive, and
+# a mismatch here shows up as an unrelated diff in someone else's PR:
+#   - buf              1.72.0   (https://buf.build)
+#   - protoc-gen-go    v1.36.11 (go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11)
+#   - protoc           29.3     (https://github.com/protocolbuffers/protobuf/releases) for Python codegen
+#   - node/npm                  (for protoc-gen-es, pinned in package.json,
+#                                installed into ./node_modules via `npm install`)
 #
 # Usage: ./scripts/generate.sh
 set -euo pipefail
