@@ -42,12 +42,26 @@ scripts/lint.sh                buf lint + breaking-change check + generated-code
 
 ## Requirements
 
-- [buf](https://buf.build) CLI
-- `protoc-gen-go`: `go install google.golang.org/protobuf/cmd/protoc-gen-go@latest`
-- `protoc` (for Python codegen): https://github.com/protocolbuffers/protobuf/releases
-- node/npm (for `protoc-gen-es`, installed into this repo's own
-  `./node_modules` via `npm install`; this is dev-only codegen tooling for
-  *this* repo, unrelated to any consuming repo's runtime dependencies)
+Generated output is version-sensitive, so every codegen tool is pinned. Use
+these exact versions locally; CI pins the same ones in the `env:` block of
+`.github/workflows/ci.yml`. Running a different version rewrites `gen/` and
+fails the generated-code-is-current check on an unrelated PR.
+
+- [buf](https://buf.build) CLI **1.72.0**
+- `protoc-gen-go` **v1.36.11**:
+  `go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11`
+- `protoc` **29.3** (for Python codegen):
+  https://github.com/protocolbuffers/protobuf/releases
+- node/npm (for `protoc-gen-es`, pinned to an exact version in
+  `package.json` and installed into this repo's own `./node_modules` via
+  `npm install`; this is dev-only codegen tooling for *this* repo, unrelated
+  to any consuming repo's runtime dependencies)
+
+To upgrade one of them, bump it in **both** places and commit the
+regenerated `gen/` in the same PR. For `protoc` specifically, check
+`gen/python/pyproject.toml` too: protoc stamps a minimum protobuf runtime
+version into the generated Python, and that has to stay within the
+`protobuf` range the package declares.
 
 ## Usage
 
