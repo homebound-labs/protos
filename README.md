@@ -3,7 +3,7 @@
 Shared protobuf schemas for cross-repo, machine-to-machine contracts at
 Homebound Labs: device telemetry, device auth, the mobile app's phone
 location contract, and (future) event-bus messages. Generated Go, Python,
-and TypeScript bindings are committed under `gen/`.
+TypeScript, and Rust bindings are committed under `gen/`.
 
 ## Scope
 
@@ -36,7 +36,8 @@ proto/homebound/events/v1/     Reserved for future event-bus messages (not wired
 gen/go/                        Generated Go bindings (google.golang.org/protobuf)
 gen/python/                    Generated Python bindings (protoc --python_out)
 gen/ts/                        Generated TypeScript bindings (protoc-gen-es / @bufbuild/protobuf)
-scripts/generate.sh            Regenerate gen/go, gen/ts, and gen/python from proto/
+gen/rust/                      Generated Rust bindings (protoc-gen-prost / prost)
+scripts/generate.sh            Regenerate gen/go, gen/ts, gen/rust, and gen/python from proto/
 scripts/lint.sh                buf lint + breaking-change check + generated-code-is-current check
 ```
 
@@ -56,6 +57,8 @@ fails the generated-code-is-current check on an unrelated PR.
   `package.json` and installed into this repo's own `./node_modules` via
   `npm install`; this is dev-only codegen tooling for *this* repo, unrelated
   to any consuming repo's runtime dependencies)
+- Rust, plus the prost plugins **0.5.0** (for Rust codegen):
+  `cargo install protoc-gen-prost@0.5.0 protoc-gen-prost-crate@0.5.0`
 
 To upgrade one of them, bump it in **both** places and commit the
 regenerated `gen/` in the same PR. For `protoc` specifically, check
@@ -66,7 +69,7 @@ version into the generated Python, and that has to stay within the
 ## Usage
 
 ```sh
-./scripts/generate.sh   # regenerate gen/go, gen/ts, and gen/python
+./scripts/generate.sh   # regenerate gen/go, gen/ts, gen/rust, and gen/python
 ./scripts/lint.sh        # lint + breaking-change check + verify gen/ is committed and current
 ```
 
@@ -128,6 +131,49 @@ a regular npm dependency. Regenerate and re-copy after any proto change; see
 `mobile/src/generated/proto/README.md` for the exact copy step. Publishing
 `gen/ts` to a package registry (npm or a private one) would remove this
 vendoring step and is a reasonable follow-up — see Known limitations below.
+
+### Rust
+
+```rust
+use homebound_protos::homebound::telemetry::v1::TelemetryEvent;
+use prost::Message;
+
+let evt = TelemetryEvent {
+    event_id: "evt_01h...".to_string(),
+    sequence: 1042,
+    ..Default::default()
+};
+let bytes = evt.encode_to_vec();
+```
+
+Cargo resolves a package anywhere in a git repo by name, so unlike `gen/ts`
+this needs no vendoring and unlike `gen/python` no `#subdirectory=` fragment:
+
+```toml
+homebound-protos = { git = "https://github.com/homebound-labs/protos" }
+```
+
+`google.protobuf.*` types map to the [`prost-types`](https://docs.rs/prost-types)
+crate rather than being compiled into this one, so every consumer shares a
+single `Timestamp` type.
+
+#### no_std
+
+Device firmware
+([`homebound-labs/homebound-fw`](https://github.com/homebound-labs/homebound-fw))
+runs `no_std` on a Cortex-M33, so this crate builds without `std`:
+
+```toml
+homebound-protos = { git = "https://github.com/homebound-labs/protos", default-features = false }
+```
+
+prost still needs a heap in that configuration -- generated messages use
+`String` and `Vec` through `prost::alloc` -- so a `no_std` consumer must
+register a global allocator. CI cross-builds this crate for
+`thumbv8m.main-none-eabihf` to keep the guarantee honest.
+
+`gen/rust/src/lib.rs` and `gen/rust/tests/` are hand-written; everything else
+under `gen/rust/src/` is generated and must not be edited.
 
 ## Versioning and compatibility
 

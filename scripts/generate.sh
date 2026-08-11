@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Generates Go, TypeScript, and Python bindings for all protos in this repo.
+# Generates Go, TypeScript, Rust, and Python bindings for all protos in this
+# repo.
 #
 # Requirements on PATH. Use the same versions CI pins (see the `env:` block
 # in .github/workflows/ci.yml) -- generated output is version-sensitive, and
@@ -9,6 +10,8 @@
 #   - protoc           29.3     (https://github.com/protocolbuffers/protobuf/releases) for Python codegen
 #   - node/npm                  (for protoc-gen-es, pinned in package.json,
 #                                installed into ./node_modules via `npm install`)
+#   - protoc-gen-prost, protoc-gen-prost-crate 0.5.0
+#                       (cargo install protoc-gen-prost@0.5.0 protoc-gen-prost-crate@0.5.0)
 #
 # Usage: ./scripts/generate.sh
 set -euo pipefail
@@ -21,7 +24,11 @@ if [ ! -x node_modules/.bin/protoc-gen-es ]; then
   npm install --no-audit --no-fund
 fi
 
-echo "==> Generating Go and TypeScript bindings (buf)"
+# Drop previously generated Rust so a deleted or renamed proto package does
+# not leave an orphan module behind. lib.rs is hand-written -- keep it.
+find gen/rust/src -mindepth 1 ! -name 'lib.rs' -exec rm -rf {} +
+
+echo "==> Generating Go, TypeScript, and Rust bindings (buf)"
 buf generate
 
 echo "==> Generating Python bindings (protoc)"

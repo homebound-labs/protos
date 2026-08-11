@@ -49,6 +49,13 @@ jobs:
       - name: Install protoc-gen-es (for TypeScript codegen)
         run: npm install --no-audit --no-fund
 
+      # Pinned: an unpinned plugin silently changes the generated output and
+      # turns "Regenerate and diff" red on an unrelated PR.
+      - name: Install Rust codegen plugins
+        run: |
+          cargo install protoc-gen-prost --version 0.5.0 --locked
+          cargo install protoc-gen-prost-crate --version 0.5.0 --locked
+
       - name: buf lint
         run: buf lint
 
@@ -92,3 +99,14 @@ jobs:
 
       - name: TypeScript build check
         run: npx --yes -p typescript tsc --noEmit --target es2020 --module commonjs --moduleResolution node --skipLibCheck $(find gen/ts -name '*_pb.ts')
+
+      - name: Rust build and test
+        run: cargo test --manifest-path gen/rust/Cargo.toml
+
+      # homebound-fw consumes these bindings from a no_std Cortex-M33 target,
+      # so a std-only regression here would only surface in that repo.
+      - name: Rust no_std cross-build check
+        run: |
+          rustup target add thumbv8m.main-none-eabihf
+          cargo build --manifest-path gen/rust/Cargo.toml \
+            --no-default-features --target thumbv8m.main-none-eabihf

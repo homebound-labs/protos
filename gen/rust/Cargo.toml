@@ -1,0 +1,21 @@
+[package]
+name = "homebound-protos"
+version = "0.1.0"
+edition = "2021"
+description = "Generated Rust bindings for Homebound Labs shared protobuf contracts"
+repository = "https://github.com/homebound-labs/protos"
+publish = false
+# prost 0.14's own MSRV.
+rust-version = "1.74"
+
+[dependencies]
+# default-features = false keeps this crate usable from a no_std firmware
+# target; the `std` feature below turns std back on for server-side callers.
+prost = { version = "0.14", default-features = false, features = ["derive"] }
+# Provides google.protobuf.Timestamp, which the telemetry, device, mobile,
+# alert, and zone contracts all use.
+prost-types = { version = "0.14", default-features = false }
+
+[features]
+default = ["std"]
+std = ["prost/std", "prost-types/std"]
